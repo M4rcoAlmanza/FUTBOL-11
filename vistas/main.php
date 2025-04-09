@@ -46,7 +46,7 @@ require_once 'js/asignarJugadores.php';
     <!-- Club actual e input -->
     <div class="mt-4 text-center">
         <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
-        <img src="img/300x300/<?= is_array($_SESSION['club_actual']) ? $_SESSION['club_actual'][0] : $_SESSION['club_actual'] ?>.png" alt="Escudo del club" class="img-fluid rounded" style="max-width: 50px;">
+        <img src="img/300x300/<?= is_array($_SESSION['club_actual']) ? $_SESSION['club_actual'][0] : $_SESSION['club_actual'] ?>.png" id="escudo" alt="Escudo del club" class="img-fluid rounded" style="max-width: 50px;">
         <h4 class="text-black mb-0">
             <span id="club-actual" class="text-primary-emphasis">
                 <?= strtoupper(is_array($_SESSION['club_actual']) ? implode(', ', $_SESSION['club_actual']) : $_SESSION['club_actual']) ?>

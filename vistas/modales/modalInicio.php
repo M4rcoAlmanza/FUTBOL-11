@@ -34,15 +34,7 @@ if (!isset($_SESSION['temporada'])): ?>
         </div>
     </div>
 
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const modo = document.getElementById('modo');
-        const temporadaSelect = document.getElementById('temporada-select');
-
-        modo.addEventListener('change', () => {
-            temporadaSelect.style.display = (modo.value === 'temporada') ? 'block' : 'none';
-        });
-    });
-    </script>
-
-<?php exit; endif; ?>
+<?php 
+require_once "js/verModal.php";
+exit; 
+endif; ?>

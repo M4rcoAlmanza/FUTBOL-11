@@ -1,22 +1,25 @@
 <?php
-session_start();
+session_start(); // Iniciar sesión para acceder a $_SESSION
 
-// Verificar que llegaron los datos por POST
+// ------------------ VERIFICAR QUE LLEGARON DATOS POR POST ------------------
 if (!isset($_POST['posicion'], $_POST['jugador'])) {
-    http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Datos incompletos.']);
+    http_response_code(400); // Respuesta HTTP 400: Bad Request
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Datos incompletos.'
+    ]);
     exit;
 }
 
 $posicion = $_POST['posicion'];
-$jugador = $_POST['jugador'];
+$jugador  = $_POST['jugador'];
 
-// Inicializar la alineación en la sesión si no existe
+// ------------------ INICIALIZAR LA ALINEACIÓN SI NO EXISTE ------------------
 if (!isset($_SESSION['alineacion'])) {
-    $_SESSION['alineacion'] = [];
+    $_SESSION['alineacion'] = []; // Crear arreglo vacío
 }
 
-// Validar si ya hay un jugador en esa posición
+// ------------------ VALIDAR SI LA POSICIÓN YA ESTÁ OCUPADA ------------------
 if (isset($_SESSION['alineacion'][$posicion])) {
     echo json_encode([
         'status' => 'error',
@@ -25,7 +28,7 @@ if (isset($_SESSION['alineacion'][$posicion])) {
     exit;
 }
 
-// Validar si el jugador ya fue asignado en otra posición
+// ------------------ VALIDAR SI EL JUGADOR YA FUE ASIGNADO EN OTRA POSICIÓN ------------------
 if (in_array($jugador, $_SESSION['alineacion'])) {
     echo json_encode([
         'status' => 'error',
@@ -34,16 +37,13 @@ if (in_array($jugador, $_SESSION['alineacion'])) {
     exit;
 }
 
-// Guardar el jugador en la sesión
+// ------------------ ASIGNAR JUGADOR A LA POSICIÓN ------------------
 $_SESSION['alineacion'][$posicion] = $jugador;
 
+// ------------------ RESPUESTA EXITOSA ------------------
 echo json_encode([
-    'status' => 'ok',
-    'message' => "Jugador asignado a $posicion.",
-    'alineacion' => $_SESSION['alineacion']
+    'status'     => 'ok',
+    'message'    => "Jugador asignado a $posicion.",
+    'alineacion' => $_SESSION['alineacion'] // Devolver alineación completa por si se necesita
 ]);
 ?>
-
-<script>
-    
-</script>

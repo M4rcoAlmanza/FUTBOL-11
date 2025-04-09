@@ -1,35 +1,28 @@
 <script>
+// ---------------- CONFIGURACIÓN DE POSICIONES COMPATIBLES ----------------
 const compatibilidadPosiciones = {
     'POR': ['PO'],
     'CB1': ['DF'], 'CB2': ['DF'], 'CB3': ['DF'],
-    'LI': ['LI'],
-    'LD': ['LD'],
-    'MI': ['EI','MI'],
-    'MD': ['ED','MD'],
-    'MC1': ['MC', 'MCD'], 
-    'MC2': ['MC', 'MCD'],
-    'MCO': ['MCO', 'MC'],
-    'MCO1': ['MCO', 'MC'], 'MCO2': ['MCO', 'MC'], 'MCO3': ['MCO', 'MC'],
-    'EI': ['EI', 'MI'],
-    'ED': ['ED', 'MD'],
-    'DC': ['DC'],
-    'DC1': ['DC'], 'DC2': ['DC']
+    'LI': ['LI'], 'LD': ['LD'],
+    'MI': ['EI','MI'], 'MD': ['ED','MD'],
+    'MC1': ['MC', 'MCD'], 'MC2': ['MC', 'MCD'],
+    'MCO': ['MCO', 'MC'], 'MCO1': ['MCO', 'MC'], 'MCO2': ['MCO', 'MC'], 'MCO3': ['MCO', 'MC'],
+    'EI': ['EI', 'MI'], 'ED': ['ED', 'MD'],
+    'DC': ['DC'], 'DC1': ['DC'], 'DC2': ['DC']
 };
 
-
+// ---------------- FUNCIONES PRINCIPALES ----------------
 function asignarJugador(posicion, jugador) {
     let alineacion = JSON.parse(localStorage.getItem("alineacion")) || {};
 
-    // Verificar que la posición ya esté ocupada
     if (alineacion[posicion]) {
-        alert("Ya hay un jugador en la posición: " + posicion);
+        alert(`Ya hay un jugador en la posición: ${posicion}`);
         return;
     }
 
-    // Verificar que el jugador no esté repetido
     for (let pos in alineacion) {
         if (alineacion[pos].toLowerCase() === jugador.toLowerCase()) {
-            alert("Este jugador ya fue asignado en la posición: " + pos);
+            alert(`Este jugador ya fue asignado en la posición: ${pos}`);
             return;
         }
     }
@@ -37,11 +30,9 @@ function asignarJugador(posicion, jugador) {
     alineacion[posicion] = jugador;
     localStorage.setItem("alineacion", JSON.stringify(alineacion));
 
-    // Mostrar en el campo visual
-    const div = document.getElementById("pos-" + posicion);
+    const div = document.getElementById(`pos-${posicion}`);
     if (div) div.innerText = jugador;
 
-    // Guardar también en sesión
     fetch('asignarJugador.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -49,103 +40,110 @@ function asignarJugador(posicion, jugador) {
     });
 }
 
-
 function confirmarJugador() {
-    const inputJugador = document.querySelector('input[name="jugador_nombre"]');
-    const selectPos = document.getElementById("select-posicion");
+    const input = document.querySelector('input[name="jugador_nombre"]');
+    const select = document.getElementById("select-posicion");
 
-    const jugadorInput = inputJugador.value.trim();
-    const posicion = selectPos.value;
+    const nombreJugador = input.value.trim();
+    const posicion = select.value;
 
-    if (!jugadorInput || !posicion) {
+    if (!nombreJugador || !posicion) {
         alert("Completa todos los campos.");
         return;
     }
 
-    const jugadorEncontrado = jugadores.find(j => j.nombre.toLowerCase() === jugadorInput.toLowerCase());
+    // const jugador = jugadores.find(j => j.nombre.toLowerCase() === nombreJugador.toLowerCase());
+    // if (!jugador) {
+    //     alert("El jugador no fue encontrado en la base de datos.");
+    //     return;
+    // }
 
-    if (!jugadorEncontrado) {
+    const coincidencias = jugadores.filter(j => j.nombre.toLowerCase() === nombreJugador.toLowerCase());
+
+    if (coincidencias.length === 0) {
         alert("El jugador no fue encontrado en la base de datos.");
         return;
     }
 
-    // Validar si pertenece al club actual
-    const equiposJugador = Array.isArray(jugadorEncontrado.equipo)
-        ? jugadorEncontrado.equipo
-        : jugadorEncontrado.equipo.split(',').map(e => e.trim());
+    // Buscar uno que sí pertenezca al club actual
+    const jugador = coincidencias.find(j => {
+        const equipos = Array.isArray(j.equipo)
+            ? j.equipo
+            : j.equipo.split(',').map(e => e.trim().toLowerCase());
+        return equipos.includes(clubActual.toLowerCase());
+    });
 
-    if (!equiposJugador.map(e => e.toLowerCase()).includes(clubActual.toLowerCase())) {
-        alert(`El jugador ${jugadorEncontrado.nombre} no pertenece al club ${clubActual}.`);
+    if (!jugador) {
+        alert(`No se encontró un jugador llamado ${nombreJugador} que pertenezca al club ${clubActual}.`);
         return;
     }
 
 
+    // Validar compatibilidad de posición
     const compatibles = compatibilidadPosiciones[posicion] || [];
-
-    if (!compatibles.includes(jugadorEncontrado.posicion)) {
-        alert(`El jugador ${jugadorEncontrado.nombre}, no es compatible con la posición ${posicion}.`);
+    if (!compatibles.includes(jugador.posicion)) {
+        alert(`El jugador ${jugador.nombre} no es compatible con la posición ${posicion}.`);
         return;
     }
 
-    // Guardar jugador
-    asignarJugador(posicion, jugadorEncontrado.nombre);
+    // Asignar jugador y avanzar
+    asignarJugador(posicion, jugador.nombre);
+    cambiarClub();
+    limpiarCampos(input, select);
+}
 
-    // Cambiar de club
+function cambiarClub() {
     fetch('nuevo_club.php')
         .then(res => res.json())
         .then(data => {
-            document.querySelector('#club-actual').innerText = data.club.toUpperCase();
             clubActual = data.club;
             localStorage.setItem("club_actual", clubActual);
+            document.querySelector('#club-actual').innerText = clubActual.toUpperCase();
+
+            // Actualizar escudo del club
+            const escudo = document.getElementById('escudo');
+            if (escudo) {
+                escudo.src = `img/300x300/${clubActual}.png`;
+                escudo.alt = `Escudo de ${clubActual}`;
+            }
         });
+}
 
-    // Limpiar input de jugador
-    inputJugador.value = '';
+function limpiarCampos(input, select) {
+    input.value = '';
+    const option = select.querySelector(`option[value="${select.value}"]`);
+    if (option) option.remove();
 
-    // Eliminar la opción usada del select
-    const optionToRemove = selectPos.querySelector(`option[value="${posicion}"]`);
-    if (optionToRemove) optionToRemove.remove();
-
-    // Si ya no hay más posiciones disponibles
-    if (selectPos.options.length === 0) {
-        // Oculta el formulario
+    if (select.options.length === 0) {
         document.getElementById("form-insercion").style.display = "none";
-
-        // Mostrar el modal
-        const finModal = new bootstrap.Modal(document.getElementById('finModal'));
-        finModal.show();
+        new bootstrap.Modal(document.getElementById('finModal')).show();
     }
 }
 
-// Muestra a los jugadores ya puestos y almacenados en la sesión
+// ---------------- CARGAR JUGADORES YA ASIGNADOS AL INICIO ----------------
 window.onload = function() {
     const alineacion = JSON.parse(localStorage.getItem("alineacion")) || {};
-    const selectPos = document.getElementById("select-posicion");
+    const select = document.getElementById("select-posicion");
 
     for (let pos in alineacion) {
-        const div = document.getElementById("pos-" + pos);
-        if (div) {
-            div.innerText = alineacion[pos];
-        }
+        const div = document.getElementById(`pos-${pos}`);
+        if (div) div.innerText = alineacion[pos];
 
-        // Eliminar del <select> si ya está asignado
-        const optionToRemove = selectPos.querySelector(`option[value="${pos}"]`);
-        if (optionToRemove) optionToRemove.remove();
+        const option = select.querySelector(`option[value="${pos}"]`);
+        if (option) option.remove();
     }
 
-    const totalPosiciones = <?= count($posiciones) ?>;
-    // Si ya se llenó la alineación, ocultar el formulario y mostrar el modal
-    if (Object.keys(alineacion).length >= totalPosiciones) {
+    const total = <?= count($posiciones) ?>;
+    if (Object.keys(alineacion).length >= total) {
         document.getElementById("form-insercion").style.display = "none";
-        const finModal = new bootstrap.Modal(document.getElementById('finModal'));
-        finModal.show();
+        new bootstrap.Modal(document.getElementById('finModal')).show();
     }
 };
 
+// ---------------- AUTOCOMPLETADO DE INPUT DE JUGADOR ----------------
 const inputJugador = document.getElementById("input-jugador");
 const datalist = document.getElementById("lista-jugadores");
 
-// Lista completa de jugadores desde PHP en JS
 const nombresJugadores = [
     <?php foreach ($jugadores as $j): ?>
         "<?= addslashes($j->getNombre()) ?>",
@@ -153,19 +151,19 @@ const nombresJugadores = [
 ];
 
 inputJugador.addEventListener("input", () => {
-    const value = inputJugador.value.trim().toLowerCase();
+    const valor = inputJugador.value.trim().toLowerCase();
+    datalist.innerHTML = '';
 
-    // Solo sugerir si hay al menos 3 letras
-    if (value.length < 3) {
-        datalist.innerHTML = '';
-        return;
-    }
+    if (valor.length < 3) return;
 
-    const sugerencias = nombresJugadores.filter(nombre => nombre.toLowerCase().includes(value));
-    
+    const sugerencias = nombresJugadores.filter(nombre =>
+        nombre.toLowerCase().includes(valor)
+    );
+
     datalist.innerHTML = sugerencias.map(nombre => `<option value="${nombre}">`).join('');
 });
 
+// ---------------- CONFIRMAR REINICIO ----------------
 function confirmarReinicio() {
     return confirm("¿Estás seguro de que quieres reiniciar la alineación? Se perderán todos los jugadores actuales.");
 }
