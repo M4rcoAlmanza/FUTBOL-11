@@ -1,0 +1,5 @@
+# IGNORA EL ARCHIVO DE CONTRASEÑAS
+passwords.php
+# IGNORA LOS ARCHIVOS SUBIDOS, PERO NO LA CARPETA
+vistas/archivos/*
+!vistas/archivos/.gitkeep

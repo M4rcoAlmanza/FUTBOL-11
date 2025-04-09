@@ -1,0 +1,157 @@
+/* General */
+body {
+    background-color: #ffffff;
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 90vh;
+}
+
+.container-main {
+    flex: 1;
+}
+
+/* Footer */
+/* footer {
+    width: 100%;
+    margin-top: auto;
+} */
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* padding: 10px 0; */
+    padding: 100px 0 10px 0; /* Padding superior aumentado */
+    text-align: center;
+    z-index: 1000; /* Asegura que esté por encima de otros elementos */
+}
+
+
+/* Login Page */
+.login-card {
+    border-radius: 1rem;
+    background: #4A4A4A;
+    color: #fff;
+}
+
+.login-image {
+    border-radius: 1rem 0 0 1rem;
+}
+
+.login-input {
+    border-radius: 50px;
+}
+
+.login-password {
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+}
+
+.btn-toggle-password {
+    cursor: pointer;
+}
+
+.login-button {
+    border-radius: 50px;
+    background-color: #1E90FF;
+    transition: all 0.3s ease;
+}
+
+/* Botones Generales */
+.btn-primary {
+    background-color: #2C3E50;
+    border: none;
+    transition: 0.3s;
+    width: 100%;
+}
+
+.btn-primary:hover, 
+.btn-primary:focus {
+    background-color: #FF8C00;
+    border: none;
+}
+
+/* Inputs */
+.form-control {
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.form-control:focus {
+    color: #000;
+    background-color: #f1f1f1;
+    outline: none;
+}
+
+/* Input con iconos */
+.input-group-text {
+    background-color: #fff;
+    border: 1px solid #555 !important;
+    padding: 10px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.input-group-text img {
+    width: 18px;
+}
+
+/* Select */
+.form-select {
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #555 !important;
+    padding: 10px;
+    border-radius: 5px;
+    height: 50px;
+}
+
+/* Documentos Page */
+.document-container {
+    width: 80%;
+    margin: auto;
+}
+
+.btn-new-document {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+}
+
+.icon-new-document {
+    margin-right: 10px;
+    width: 24px;
+}
+
+/* Tabla */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table th, .table td {
+    text-align: center;
+}
+
+/* Ocultar contactos */
+.contacto-item {
+    display: flex;
+}
+
+.contacto-item.oculto {
+    display: none !important;
+}
+
